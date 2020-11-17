@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<LangVersion>9</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Entities\Constraints\DateTimeOffsetRange.cs" />
+	  <Compile Remove="Entities\Constraints\DateTimeRange.cs" />
+	  <Compile Remove="Entities\Constraints\DecimalRange.cs" />
+	  <Compile Remove="Entities\Constraints\DoubleRange.cs" />
+	  <Compile Remove="Entities\Constraints\FloatRange.cs" />
+	  <Compile Remove="Entities\Constraints\IntegerRange.cs" />
+	  <Compile Remove="Entities\Constraints\LongRange.cs" />
+	  <Compile Remove="Entities\Constraints\ShortRange.cs" />
+	  <Compile Remove="Entities\Constraints\SignedByteRange.cs" />
+	  <Compile Remove="Entities\Constraints\TimeSpanRange.cs" />
+	  <Compile Remove="Entities\Constraints\UnsignedIntegerRange.cs" />
+	  <Compile Remove="Entities\Constraints\UnsignedLongRange.cs" />
+	  <Compile Remove="Entities\Constraints\UnsignedShortRange.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\.editorconfig" Link=".editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Entities\Tables\" />
+	</ItemGroup>
+
+</Project>

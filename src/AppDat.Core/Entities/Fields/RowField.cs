@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AppDat.Rdbms.Core.Entities.Constraints;
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -10,9 +12,9 @@ using System.Runtime.Serialization;
 namespace AppDat.Core.Entities
 {
     [DataContract, Serializable]
-    public class RowField<TType> : 
-        INotifyPropertyChanged, 
-        INotifyPropertyChanging, 
+    public class RowField<TType> :
+        INotifyPropertyChanged,
+        INotifyPropertyChanging,
         ISerializable
     {
         private ConcurrentStack<TType?> _history = new();
@@ -30,8 +32,8 @@ namespace AppDat.Core.Entities
         protected RowField(SerializationInfo info, StreamingContext context)
         {
             var value = info.GetValue(nameof(Pair), typeof(FieldValuePair<TType>));
-            
-            Pair = (FieldValuePair<TType>)(value ?? 
+
+            Pair = (FieldValuePair<TType>)(value ??
                 throw new SerializationException($"Error deserializing `RowField<{typeof(TType).FullName}>`"));
 
             var history = info.GetValue(nameof(History), typeof(ImmutableArray<TType?>));
@@ -49,7 +51,7 @@ namespace AppDat.Core.Entities
             string? description,
             string? displayName)
         {
-            FieldRecord<TType> record = 
+            FieldRecord<TType> record =
                 RecordFactory.GetFieldRecord<TType>(
                     fieldUid,
                     fieldName,
@@ -70,7 +72,7 @@ namespace AppDat.Core.Entities
             string? description,
             string? displayName)
         {
-            FieldRecord<TType> record = 
+            FieldRecord<TType> record =
                 RecordFactory.GetFieldRecord<TType>(
                     fieldUid,
                     fieldName,
@@ -83,7 +85,8 @@ namespace AppDat.Core.Entities
         }
 
         [IgnoreDataMember]
-        public TType? Value { 
+        public TType? Value
+        {
             get => Pair.Value;
             set
             {
@@ -116,8 +119,8 @@ namespace AppDat.Core.Entities
 
         internal TType? Undo()
         {
-            var value = _history.TryPop(out TType? v) 
-                ? v 
+            var value = _history.TryPop(out TType? v)
+                ? v
                 : throw new ApplicationException("Error getting value from History.");
 
             SetValue(value, false);
@@ -147,12 +150,31 @@ namespace AppDat.Core.Entities
 
         public FieldValidationError[] Validate()
         {
-            return Array.Empty<FieldValidationError>();
+            List<FieldValidationError<TType>>? errors = null;
+
+            if (Definition.Constraints?.Length > 0)
+            {
+                errors = new();
+
+                foreach (var constraint in Definition.Constraints
+                    .Select(c => new ConstraintContainer<IConstraint<TType>, TType>(c)))
+                {
+                    if (!constraint.Evaluate(Value))
+                    {
+                        errors.Add(
+                            FieldValidationError<TType>.Create(
+                                Pair,
+                                $"{Value} is not valid for {constraint}"));
+                    }
+                }
+            }
+
+            return errors?.ToArray() ?? Array.Empty<FieldValidationError>();
         }
 
         private void Changed([CallerMemberName] string? name = null)
         {
-            PropertyChanged?.Invoke(this, new (name));
+            PropertyChanged?.Invoke(this, new(name));
         }
 
         private AbortablePropertyChangingEventArgs Changing([CallerMemberName] string? name = null)

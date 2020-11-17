@@ -139,10 +139,10 @@ namespace AppDat.Core.Entities
         private static RowField<TType> CreateRowField<TType>(FieldRecord<TType> fieldRecord) => new(fieldRecord);
         private static RowField<TType> CreateRowField<TType>(FieldValuePair<TType> fieldPair) => new(fieldPair);
 
-        [DataMember(Name = "a")]
+        [DataMember(Name = "RowUid")]
         public Guid RowUid { get; } = Guid.NewGuid();
 
-        [DataMember(Name = "b")]
+        [DataMember(Name = "PrimaryKey")]
         public FieldSet PrimaryKey { get; protected set; }
 
         [IgnoreDataMember]
@@ -171,7 +171,7 @@ namespace AppDat.Core.Entities
                     ? value.Pair 
                     : default;
 
-                if(pair.As<TType>() is FieldValuePair<TType> fieldPair)
+                if(pair?.As<TType>() is FieldValuePair<TType> fieldPair)
                 {
                     value = CreateRowField(fieldPair with { Value = newValue }).As<object?>();
 
@@ -197,7 +197,44 @@ namespace AppDat.Core.Entities
                 throw new ObjectDisposedException(nameof(Row));
             }
 
-            var result = new Dictionary<Guid, FieldValidationError[]>();
+            var result = new ConcurrentDictionary<Guid, FieldValidationError[]>();
+
+            foreach(var field in PrimaryKey)
+            {
+                if (!_dictionary.ContainsKey(field.FieldUid))
+                {
+                    var existing = result.TryGetValue(field.FieldUid, out var value) 
+                        ? value.ToList() 
+                        : new List<FieldValidationError>();
+
+                    existing.Add(new FieldValidationError
+                    {
+                        Message = $"PrimaryKey Field [{field.FieldName}] not in Row."
+                    });
+
+                    result.AddOrUpdate(
+                        field.FieldUid, 
+                        existing.ToArray(), 
+                        (k, value) => existing.ToArray());
+                } 
+                else
+                {
+                    var keyValue = _dictionary.TryGetValue(field.FieldUid, out var value) ? value : null;
+
+                    if(keyValue is null || keyValue.Pair.Value is null)
+                    {
+                        FieldValidationError error = new()
+                        {
+                            Message = $"Primary Key value [{keyValue.Pair.Definition.FieldName}] is null."
+                        };
+
+                        result.AddOrUpdate(
+                            field.FieldUid,
+                            new[] { error },
+                            (k, v) => new[] { error });
+                    }
+                }
+            }
 
             foreach (var rowField in _dictionary.Values.ToList())
             {
@@ -205,7 +242,16 @@ namespace AppDat.Core.Entities
 
                 if (fieldResult.Length > 0)
                 {
-                    result.Add(rowField.Definition.FieldUid, fieldResult);
+                    var existing = result.TryGetValue(rowField.Definition.FieldUid, out var value)
+                        ? value.ToList()
+                        : new List<FieldValidationError>();
+
+                    existing.AddRange(fieldResult);
+
+                    result.AddOrUpdate(
+                        rowField.Definition.FieldUid,
+                        existing.ToArray(),
+                        (k, v) => existing.ToArray());
                 }
             }
 

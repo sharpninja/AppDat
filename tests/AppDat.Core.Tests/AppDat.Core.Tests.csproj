@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\AppDat.Core\AppDat.Core.csproj" />
+    <ProjectReference Include="..\..\src\AppDat.Core\AppDat.Rdbms.Core.csproj" />
   </ItemGroup>
 
 </Project>

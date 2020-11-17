@@ -39,7 +39,7 @@ namespace AppDat.Core.Entities
                     }
         };
 
-        [DataMember(Name = "a")]
+        [DataMember(Name = "Fields")]
         public FieldRecord<object?>[] Fields { get; init; }
 
         public IEnumerator<FieldRecord<object?>> GetEnumerator()

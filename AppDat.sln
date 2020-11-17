@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30626.31
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppDat.Core", "AppDat.Core\AppDat.Core.csproj", "{9962DB67-F814-4A16-BC53-DE438B027F0F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppDat.Rdbms.Core", "src\AppDat.Core\AppDat.Rdbms.Core.csproj", "{9962DB67-F814-4A16-BC53-DE438B027F0F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D139571B-BFFE-4093-81AC-7068C4EFC1BB}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,6 +13,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9473D50E-E90F-480D-B2D1-57B2B5FDF30F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppDat.Core.Tests", "tests\AppDat.Core.Tests\AppDat.Core.Tests.csproj", "{010096B0-B9AE-499D-86D6-82EB8174CA97}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RDBMS", "RDBMS", "{0BFEAB56-B8EB-4B86-A745-85D0120AE54E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{9962DB67-F814-4A16-BC53-DE438B027F0F} = {0BFEAB56-B8EB-4B86-A745-85D0120AE54E}
 		{010096B0-B9AE-499D-86D6-82EB8174CA97} = {9473D50E-E90F-480D-B2D1-57B2B5FDF30F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
